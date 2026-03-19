@@ -1,0 +1,12 @@
+{
+  "name": "AB Test",
+  "id": "1400000000000000001",
+  "api": "1.0.0",
+  "main": "code.js",
+  "ui": "ui.html",
+  "editorType": ["figma"],
+  "networkAccess": {
+    "allowedDomains": ["https://figma-ab-test-50023798948.development.catalystappsail.in"],
+    "reasoning": "Connects to the AB test server to upload design screenshots, record votes, and retrieve voting results. No other external domains are accessed."
+  }
+}

@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Design Vote</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: #fff;
+    color: #111;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── Layout ── */
+  .page {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 56px 32px 80px;
+  }
+
+  /* ── Header ── */
+  .header { margin-bottom: 40px; }
+  .header-overline {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: #999;
+    margin-bottom: 8px;
+  }
+  .header h1 {
+    font-size: 24px;
+    font-weight: 600;
+    color: #111;
+    line-height: 1.3;
+    margin-bottom: 4px;
+  }
+  .header-sub {
+    font-size: 14px;
+    color: #888;
+    font-weight: 400;
+  }
+
+  /* ── Cards ── */
+  .cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-bottom: 24px;
+  }
+
+  .card {
+    border: 1.5px solid #e5e5e5;
+    border-radius: 12px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    position: relative;
+    background: #fafafa;
+  }
+  .card:hover {
+    border-color: #ccc;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+  }
+  .card.selected {
+    border-color: #111;
+    box-shadow: 0 0 0 1px #111;
+  }
+
+
+  .card-img {
+    width: 100%;
+    min-height: 360px;
+    object-fit: contain;
+    display: block;
+    background: #fafafa;
+  }
+
+  .card-footer {
+    padding: 14px 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-top: 1px solid #f0f0f0;
+    background: #fff;
+  }
+  .card-name {
+    font-size: 13px;
+    font-weight: 500;
+    color: #333;
+  }
+  .card-expand {
+    font-size: 11px;
+    color: #aaa;
+    transition: color 0.15s;
+  }
+  .card:hover .card-expand { color: #666; }
+
+  /* ── Vote Buttons ── */
+  .actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-bottom: 32px;
+  }
+
+  .vote-btn {
+    padding: 13px 24px;
+    border: 2px solid #111;
+    border-radius: 10px;
+    background: #fff;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    color: #111;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .vote-btn:hover {
+    background: #f5f5f5;
+  }
+  .vote-btn.voted {
+    background: #111;
+    border-color: #111;
+    color: #fff;
+    cursor: default;
+  }
+
+  /* ── Prompt / Banner ── */
+  .prompt {
+    text-align: center;
+    font-size: 13px;
+    color: #bbb;
+    margin-bottom: 32px;
+  }
+
+  .banner {
+    text-align: center;
+    padding: 10px 16px;
+    background: #f0faf0;
+    border: 1px solid #d4eed4;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #2a7a2a;
+    margin-bottom: 24px;
+    display: none;
+  }
+  .banner.show { display: block; }
+
+  /* ── Results ── */
+  .results {
+    max-width: 520px;
+    margin: 0 auto;
+    display: none;
+  }
+  .results.show { display: block; }
+
+  .results-heading {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: #999;
+    margin-bottom: 16px;
+  }
+
+  .res-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+  }
+  .res-label {
+    width: 80px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #333;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .res-track {
+    flex: 1;
+    height: 6px;
+    background: #f0f0f0;
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .res-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.5s ease;
+  }
+  .res-fill.a { background: #111; }
+  .res-fill.b { background: #888; }
+  .res-pct {
+    width: 64px;
+    text-align: right;
+    font-size: 13px;
+    color: #999;
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+  }
+  .res-total {
+    font-size: 12px;
+    color: #bbb;
+    margin-top: 12px;
+  }
+
+  /* ── Lightbox ── */
+  .lightbox {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    background: rgba(255,255,255,0.95);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    padding: 40px;
+  }
+  .lightbox.open { display: flex; }
+  .lightbox-viewport {
+    flex: 1;
+    width: 100%;
+    overflow: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: grab;
+  }
+  .lightbox-viewport:active { cursor: grabbing; }
+  .lightbox-viewport img {
+    border-radius: 8px;
+    border: 1px solid #e5e5e5;
+    object-fit: contain;
+    transform-origin: center center;
+    transition: transform 0.2s ease;
+    max-width: 92%;
+    max-height: 82vh;
+  }
+  .lightbox-viewport img.zoomed {
+    max-width: none;
+    max-height: none;
+    cursor: grab;
+  }
+  .lightbox-toolbar {
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 6px;
+    background: #fff;
+    border: 1.5px solid #ddd;
+    border-radius: 10px;
+    padding: 4px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    z-index: 102;
+  }
+  .lb-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    border: none;
+    background: transparent;
+    color: #666;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+    font-family: inherit;
+  }
+  .lb-btn:hover {
+    background: #f0f0f0;
+    color: #111;
+  }
+  .lb-btn.active {
+    background: #111;
+    color: #fff;
+  }
+  .lb-zoom-level {
+    display: flex;
+    align-items: center;
+    font-size: 12px;
+    font-weight: 500;
+    color: #666;
+    min-width: 44px;
+    justify-content: center;
+    font-variant-numeric: tabular-nums;
+    user-select: none;
+  }
+  .lb-divider {
+    width: 1px;
+    background: #e5e5e5;
+    margin: 4px 2px;
+  }
+  .lightbox-close {
+    position: absolute;
+    top: 20px;
+    right: 24px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 1.5px solid #ddd;
+    background: #fff;
+    color: #666;
+    font-size: 18px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+    z-index: 102;
+  }
+  .lightbox-close:hover {
+    border-color: #111;
+    color: #111;
+  }
+  .lightbox-name {
+    margin-top: 12px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #666;
+    flex-shrink: 0;
+  }
+
+  /* ── States ── */
+  .loading-state, .error-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 60vh;
+    font-size: 14px;
+    color: #999;
+  }
+  .error-state {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 60vh;
+    text-align: center;
+    padding: 32px;
+  }
+  .error-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: #f5f5f5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    margin-bottom: 20px;
+  }
+  .error-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: #111;
+    margin-bottom: 8px;
+  }
+  .error-sub {
+    font-size: 14px;
+    color: #888;
+    max-width: 360px;
+    line-height: 1.5;
+  }
+  .spinner {
+    width: 24px;
+    height: 24px;
+    border: 2px solid #eee;
+    border-top-color: #999;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+    margin-bottom: 12px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── Responsive ── */
+  @media (max-width: 680px) {
+    .page { padding: 32px 16px 60px; }
+    .cards, .actions {
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+    .card-img { min-height: 240px; }
+    .header h1 { font-size: 20px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Loading -->
+<div class="loading-state" id="loading-state">
+  <div class="spinner"></div>
+  <span>Loading...</span>
+</div>
+
+<!-- Error -->
+<div class="error-state" id="error-state">
+  <div class="error-icon" id="error-icon"></div>
+  <div class="error-title" id="error-title"></div>
+  <div class="error-sub" id="error-sub"></div>
+</div>
+
+<!-- Main -->
+<div class="page" id="main" style="display:none;">
+
+  <div class="header">
+    <div class="header-overline">Design Comparison</div>
+    <h1 id="test-title"></h1>
+    <p class="header-sub" id="test-subtitle">Which design do you prefer?</p>
+  </div>
+
+  <div class="banner" id="voted-banner">Thanks for voting!</div>
+
+  <div class="cards">
+    <div class="card" id="card-a" onclick="openLightbox('A')">
+      <img class="card-img" id="img-a" alt="Option A">
+      <div class="card-footer">
+        <span class="card-name" id="label-a">Option A</span>
+        <span class="card-expand">Click to enlarge</span>
+      </div>
+    </div>
+    <div class="card" id="card-b" onclick="openLightbox('B')">
+      <img class="card-img" id="img-b" alt="Option B">
+      <div class="card-footer">
+        <span class="card-name" id="label-b">Option B</span>
+        <span class="card-expand">Click to enlarge</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="actions">
+    <button class="vote-btn" id="btn-vote-a" onclick="vote('A')">Vote A</button>
+    <button class="vote-btn" id="btn-vote-b" onclick="vote('B')">Vote B</button>
+  </div>
+
+  <div class="prompt" id="prompt">Click a design to view it full-size, then vote below</div>
+</div>
+
+<!-- Lightbox -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox(event)">
+  <button class="lightbox-close" onclick="closeLightbox(event)">&#10005;</button>
+  <div class="lightbox-toolbar" onclick="event.stopPropagation()">
+    <button class="lb-btn" onclick="lbZoom(-1)" title="Zoom out">&#8722;</button>
+    <div class="lb-zoom-level" id="lb-zoom-level">100%</div>
+    <button class="lb-btn" onclick="lbZoom(1)" title="Zoom in">&#43;</button>
+    <div class="lb-divider"></div>
+    <button class="lb-btn" id="lb-actual" onclick="lbActualSize()" title="Actual size">1:1</button>
+    <button class="lb-btn" onclick="lbFitView()" title="Fit to view">Fit</button>
+  </div>
+  <div class="lightbox-viewport" id="lightbox-viewport">
+    <img id="lightbox-img" src="" alt="">
+  </div>
+  <div class="lightbox-name" id="lightbox-label"></div>
+</div>
+
+<script>
+  const testId = window.location.pathname.split('/vote/')[1];
+  const VOTED_KEY = 'ab_voted_' + testId;
+  let testData = null;
+  let hasVoted = localStorage.getItem(VOTED_KEY);
+
+  async function init() {
+    if (!testId) { showError('Invalid test link.'); return; }
+
+    try {
+      const res = await fetch('/api/tests/' + encodeURIComponent(testId));
+      if (!res.ok) throw new Error();
+      testData = await res.json();
+
+      document.getElementById('test-title').textContent = testData.title;
+      document.getElementById('label-a').textContent = testData.labelA;
+      document.getElementById('label-b').textContent = testData.labelB;
+      const imgA = document.getElementById('img-a');
+      const imgB = document.getElementById('img-b');
+      imgA.src = testData.imageA_url;
+      imgB.src = testData.imageB_url;
+      imgA.onerror = function() { this.alt = 'Image failed to load'; this.style.minHeight = '120px'; this.style.background = '#f5f5f5'; };
+      imgB.onerror = function() { this.alt = 'Image failed to load'; this.style.minHeight = '120px'; this.style.background = '#f5f5f5'; };
+      document.getElementById('img-a').alt = testData.labelA;
+      document.getElementById('img-b').alt = testData.labelB;
+      document.getElementById('btn-vote-a').textContent = 'Vote ' + testData.labelA;
+      document.getElementById('btn-vote-b').textContent = 'Vote ' + testData.labelB;
+      document.title = testData.title + ' \u2014 Vote';
+
+      document.getElementById('loading-state').style.display = 'none';
+      document.getElementById('main').style.display = 'block';
+
+      if (hasVoted) showVotedState(hasVoted);
+    } catch (e) {
+      showClosed();
+    }
+  }
+
+  // ── Lightbox with zoom ──
+  const ZOOM_STEPS = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 2, 3, 4];
+  let lbZoomIdx = 3; // starts at 100%
+  let lbIsFit = true;
+
+  function openLightbox(option) {
+    const img = document.getElementById(option === 'A' ? 'img-a' : 'img-b');
+    const lbImg = document.getElementById('lightbox-img');
+    lbImg.src = img.src;
+    document.getElementById('lightbox-label').textContent = option === 'A' ? testData.labelA : testData.labelB;
+    document.getElementById('lightbox').classList.add('open');
+    document.body.style.overflow = 'hidden';
+    lbFitView();
+  }
+
+  function closeLightbox(e) {
+    if (e.target.id === 'lightbox' || e.target.closest('.lightbox-close')) {
+      document.getElementById('lightbox').classList.remove('open');
+      document.body.style.overflow = '';
+      lbFitView();
+    }
+  }
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      document.getElementById('lightbox').classList.remove('open');
+      document.body.style.overflow = '';
+    }
+  });
+
+  function lbApplyZoom() {
+    const img = document.getElementById('lightbox-img');
+    const scale = ZOOM_STEPS[lbZoomIdx];
+    const pct = Math.round(scale * 100);
+    document.getElementById('lb-zoom-level').textContent = pct + '%';
+    document.getElementById('lb-actual').classList.toggle('active', scale === 1 && !lbIsFit);
+
+    if (lbIsFit) {
+      img.classList.remove('zoomed');
+      img.style.transform = '';
+      img.style.width = '';
+      img.style.height = '';
+    } else {
+      img.classList.add('zoomed');
+      img.style.transform = 'none';
+      img.style.width = (img.naturalWidth * scale) + 'px';
+      img.style.height = 'auto';
+    }
+  }
+
+  function lbZoom(dir) {
+    lbIsFit = false;
+    lbZoomIdx = Math.max(0, Math.min(ZOOM_STEPS.length - 1, lbZoomIdx + dir));
+    lbApplyZoom();
+  }
+
+  function lbActualSize() {
+    lbIsFit = false;
+    lbZoomIdx = ZOOM_STEPS.indexOf(1);
+    lbApplyZoom();
+  }
+
+  function lbFitView() {
+    lbIsFit = true;
+    lbZoomIdx = ZOOM_STEPS.indexOf(1);
+    document.getElementById('lb-zoom-level').textContent = 'Fit';
+    const img = document.getElementById('lightbox-img');
+    img.classList.remove('zoomed');
+    img.style.transform = '';
+    img.style.width = '';
+    img.style.height = '';
+    document.getElementById('lb-actual').classList.remove('active');
+  }
+
+  // Mouse wheel zoom in lightbox
+  document.getElementById('lightbox-viewport').addEventListener('wheel', function(e) {
+    e.preventDefault();
+    lbZoom(e.deltaY < 0 ? 1 : -1);
+  }, { passive: false });
+
+  async function vote(choice) {
+    // Sync with other tabs before proceeding
+    checkAlreadyVoted();
+
+    const cardA = document.getElementById('card-a');
+    const cardB = document.getElementById('card-b');
+    const btnA = document.getElementById('btn-vote-a');
+    const btnB = document.getElementById('btn-vote-b');
+
+    cardA.classList.toggle('selected', choice === 'A');
+    cardB.classList.toggle('selected', choice === 'B');
+    btnA.classList.toggle('voted', choice === 'A');
+    btnB.classList.toggle('voted', choice === 'B');
+
+    try {
+      const res = await fetch('/api/tests/' + encodeURIComponent(testId) + '/vote', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ choice })
+      });
+      if (!res.ok) throw new Error();
+      localStorage.setItem(VOTED_KEY, choice);
+      hasVoted = choice;
+      showVotedState(choice);
+    } catch (e) {
+      cardA.classList.remove('selected');
+      cardB.classList.remove('selected');
+      btnA.classList.remove('voted');
+      btnB.classList.remove('voted');
+    }
+  }
+
+  async function showVotedState(choice) {
+    document.getElementById('card-a').classList.toggle('selected', choice === 'A');
+    document.getElementById('card-b').classList.toggle('selected', choice === 'B');
+
+    document.getElementById('voted-banner').classList.add('show');
+    document.getElementById('test-subtitle').textContent = 'You can change your vote anytime.';
+    document.getElementById('prompt').style.display = 'none';
+
+    document.getElementById('btn-vote-a').innerHTML = choice === 'A' ? '&#10003; Voted' : 'Vote ' + testData.labelA;
+    document.getElementById('btn-vote-b').innerHTML = choice === 'B' ? '&#10003; Voted' : 'Vote ' + testData.labelB;
+    document.getElementById('btn-vote-a').classList.toggle('voted', choice === 'A');
+    document.getElementById('btn-vote-b').classList.toggle('voted', choice === 'B');
+
+
+  }
+
+  // Sync vote state across tabs in real-time
+  window.addEventListener('storage', function(e) {
+    if (e.key === VOTED_KEY && e.newValue && testData) {
+      hasVoted = e.newValue;
+      showVotedState(e.newValue);
+    }
+  });
+
+  // Also check localStorage right before voting in case another tab voted first
+  function checkAlreadyVoted() {
+    const stored = localStorage.getItem(VOTED_KEY);
+    if (stored && stored !== hasVoted) {
+      hasVoted = stored;
+      showVotedState(stored);
+      return true;
+    }
+    return false;
+  }
+
+  function showClosed() {
+    document.getElementById('loading-state').style.display = 'none';
+    document.getElementById('error-icon').textContent = '\u2718';
+    document.getElementById('error-title').textContent = 'Voting has been closed';
+    document.getElementById('error-sub').textContent = 'This design comparison is no longer accepting votes. The test may have been removed by its creator.';
+    document.getElementById('error-state').style.display = 'flex';
+  }
+
+  function showError(msg) {
+    document.getElementById('loading-state').style.display = 'none';
+    document.getElementById('error-icon').textContent = '\u26A0';
+    document.getElementById('error-title').textContent = 'Something went wrong';
+    document.getElementById('error-sub').textContent = msg;
+    document.getElementById('error-state').style.display = 'flex';
+  }
+
+  init();
+</script>
+</body>
+</html>

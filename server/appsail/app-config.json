@@ -1,0 +1,7 @@
+{
+  "command": "node index.js",
+  "build_path": ".",
+  "stack": "node18",
+  "memory": 512,
+  "port": 9000
+}

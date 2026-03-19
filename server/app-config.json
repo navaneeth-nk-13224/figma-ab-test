@@ -1,0 +1,6 @@
+{
+  "command": "node index.js",
+  "stack": "node18",
+  "memory": 512,
+  "port": 9000
+}

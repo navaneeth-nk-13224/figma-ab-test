@@ -1,0 +1,14 @@
+{
+  "name": "ab-test-server",
+  "version": "1.0.0",
+  "description": "Backend server for the Figma AB Test plugin",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node --watch index.js"
+  },
+  "dependencies": {
+    "express": "^4.21.0",
+    "zcatalyst-sdk-node": "^3.3.0"
+  }
+}

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AB Test Plugin — Privacy Policy</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: #fff;
+    color: #333;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+  .page { max-width: 640px; margin: 0 auto; padding: 56px 24px 80px; }
+  h1 { font-size: 24px; font-weight: 600; color: #111; margin-bottom: 8px; }
+  .updated { font-size: 13px; color: #999; margin-bottom: 32px; }
+  h2 { font-size: 16px; font-weight: 600; color: #111; margin: 28px 0 8px; }
+  p { font-size: 14px; margin-bottom: 12px; }
+  ul { font-size: 14px; margin: 0 0 12px 20px; }
+  li { margin-bottom: 4px; }
+  a { color: #0d99ff; text-decoration: none; }
+  a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="page">
+  <h1>Privacy Policy</h1>
+  <div class="updated">Last updated: March 19, 2026</div>
+
+  <p>AB Test is a Figma plugin that lets designers create shareable voting links to compare two designs. This policy explains what data is collected and how it is handled.</p>
+
+  <h2>What Data We Collect</h2>
+  <ul>
+    <li><strong>Design Screenshots</strong> — When you create an AB test, the two selected frames are exported as PNG images and uploaded to our server.</li>
+    <li><strong>Test Metadata</strong> — The test title and label names you provide.</li>
+    <li><strong>Voter IP Hash</strong> — When someone votes, a one-way SHA-256 hash of their IP address is stored to prevent duplicate votes. The raw IP address is never stored.</li>
+    <li><strong>Vote Choice</strong> — Which option (A or B) a voter selected.</li>
+  </ul>
+
+  <h2>How Data Is Used</h2>
+  <p>Data is used solely to operate the voting feature — displaying designs to voters, recording votes, and showing results to the test creator. No data is sold, shared with third parties, or used for advertising.</p>
+
+  <h2>Where Data Is Stored</h2>
+  <p>All data is stored on <a href="https://catalyst.zoho.com">Zoho Catalyst</a> (Datastore and Stratus object storage), hosted in Zoho's data centers.</p>
+
+  <h2>Data Retention</h2>
+  <p>When you close a vote from the Figma plugin, all associated data is permanently deleted — including the test record, all votes, and both design images. No backups are retained.</p>
+
+  <h2>No Account Required</h2>
+  <p>Voters do not need to create an account or log in. No cookies are used. A localStorage flag is set in the voter's browser to remember their vote locally.</p>
+
+  <h2>Contact</h2>
+  <p>If you have questions about this policy, reach out at <a href="mailto:navaneethkannan25@gmail.com">navaneethkannan25@gmail.com</a>.</p>
+</div>
+</body>
+</html>
